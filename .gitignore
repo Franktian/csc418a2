@@ -20,4 +20,6 @@
 # Executables
 *.exe
 *.out
-*.app
+i*.app
+
+main

@@ -38,7 +38,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-#include <glui.h>
+#include <GL/glui.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1005,7 +1005,7 @@ void writePGM(char* filename, GLubyte* buffer, int width, int height, bool raw=t
 		{
 			for(int x=0;x<width;x++)
 			{
-				fprintf(fp,"%d ",int(&buffer[x+y*width]));
+				fprintf(fp,"%d ",*((int*)(&buffer[x+y*width])));
 			}
 			fprintf(fp,"\n");
 		}
