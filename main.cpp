@@ -854,18 +854,24 @@ void display(void)
 	// SAMPLE CODE **********
 	//
 	glPushMatrix();
+	
+		// setup rotation for body part
+		glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X),
+				  joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y),
+				  joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z),
+				  0.0);
 
 		// setup transformation for body part
 		glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
 					 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
 					 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Z));
-		glRotatef(30.0, 0.0, 1.0, 0.0);
-		glRotatef(30.0, 1.0, 0.0, 0.0);
+		// glRotatef(30.0, 0.0, 1.0, 0.0);
+		// glRotatef(30.0, 1.0, 0.0, 0.0);
 
 		// determine render style and set glPolygonMode appropriately
 
 		// draw body part
-		glColor3f(1.0, 1.0, 1.0);
+		//glColor3f(1.0, 1.0, 1.0);
 		drawCube();
 
 	glPopMatrix();
@@ -931,36 +937,42 @@ void drawCube()
 {
 	glBegin(GL_QUADS);
 		// draw front face
+		glColor3f(0.9, 0.9, 0.9);
 		glVertex3f(-1.0, -1.0, 1.0);
 		glVertex3f( 1.0, -1.0, 1.0);
 		glVertex3f( 1.0,  1.0, 1.0);
 		glVertex3f(-1.0,  1.0, 1.0);
 
 		// draw back face
+		glColor3f(0.72, 0.72, 0.72);
 		glVertex3f( 1.0, -1.0, -1.0);
 		glVertex3f(-1.0, -1.0, -1.0);
 		glVertex3f(-1.0,  1.0, -1.0);
 		glVertex3f( 1.0,  1.0, -1.0);
 
 		// draw left face
+		glColor3f(0.54, 0.54, 0.54);
 		glVertex3f(-1.0, -1.0, -1.0);
 		glVertex3f(-1.0, -1.0,  1.0);
 		glVertex3f(-1.0,  1.0,  1.0);
 		glVertex3f(-1.0,  1.0, -1.0);
 
 		// draw right face
+		glColor3f(0.36, 0.36, 0.36);
 		glVertex3f( 1.0, -1.0,  1.0);
 		glVertex3f( 1.0, -1.0, -1.0);
 		glVertex3f( 1.0,  1.0, -1.0);
 		glVertex3f( 1.0,  1.0,  1.0);
 
 		// draw top
+		glColor3f(0.18, 0.18, 0.18);
 		glVertex3f(-1.0,  1.0,  1.0);
 		glVertex3f( 1.0,  1.0,  1.0);
 		glVertex3f( 1.0,  1.0, -1.0);
 		glVertex3f(-1.0,  1.0, -1.0);
 
 		// draw bottom
+		glColor3f(0.0, 0.0, 0.0);
 		glVertex3f(-1.0, -1.0, -1.0);
 		glVertex3f( 1.0, -1.0, -1.0);
 		glVertex3f( 1.0, -1.0,  1.0);
