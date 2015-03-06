@@ -882,16 +882,18 @@ void drawBody()
 {
 	glPushMatrix();
 		// setup rotation for body part
-		//glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X),
-		//		  joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y),
-		//		  joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z),
-		//		  0.0);
 
 		// setup transformation for body part
 		//glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
 		//			 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
 		//			 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Z));
-		//glScalef(0.8f, 1.2f, 0.5f);
+
+		//glRotatef(-30.0, 0.0, 0.0, 1.0);
+		//glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X), 1, 0, 0);
+		//glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
+		//glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
+
+		glScalef(0.8f, 1.2f, 0.5f);
 
 		drawCube();
 	glPopMatrix();
