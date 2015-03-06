@@ -198,6 +198,7 @@ void drawCube();
 void drawBody();
 void drawHead();
 void drawBeak();
+void drawArms();
 
 
 // Image functions
@@ -861,12 +862,15 @@ void display(void)
 
 	// SAMPLE CODE **********
 	//
+	glRotatef(60, 0, 1, 0);
+	
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X), 1, 0, 0);
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
-
+	
 	drawHead();
 	drawBody();
+	drawArms();
 	//
 	// SAMPLE CODE **********
 
@@ -938,6 +942,50 @@ void drawBeak()
 			glTranslatef(-1.2, -0.2, 0.0);
 			glScalef(0.3f, 0.05f, 0.1f);
 			drawCube();
+		glPopMatrix();
+	glPopMatrix();
+}
+
+// Draw the penguin arm
+void drawArms()
+{
+	glPushMatrix();
+		// left
+		glPushMatrix();
+			// upper
+			glPushMatrix();
+				glTranslatef(0.0, 0.0, 0.7);
+				glScalef(0.3f, 0.5f, 0.1f);
+				drawCube();
+			glPopMatrix();
+			// lower
+			glPushMatrix();
+				glTranslatef(0.0, -0.5, 0.7);
+				glRotatef(-45, 0, 0, 1);
+				glRotatef(joint_ui_data->getDOF(Keyframe::L_ELBOW), 0, 0, 1);
+				glTranslatef(0.0, -0.2, 0.0);
+				glScalef(0.3f, 0.2f, 0.1f);
+				drawCube();
+			glPopMatrix();
+		glPopMatrix();
+		
+		//right
+		glPushMatrix();
+			// upper
+			glPushMatrix();
+				glTranslatef(0.0, 0.0, -0.7);
+				glScalef(0.3f, 0.5f, 0.1f);
+				drawCube();
+			glPopMatrix();
+			// lower
+			glPushMatrix();
+				glTranslatef(0.0, -0.5, -0.7);
+				glRotatef(-45, 0, 0, 1);
+				glRotatef(joint_ui_data->getDOF(Keyframe::R_ELBOW), 0, 0, 1);
+				glTranslatef(0.0, -0.2, 0.0);
+				glScalef(0.3f, 0.2f, 0.1f);
+				drawCube();
+			glPopMatrix();
 		glPopMatrix();
 	glPopMatrix();
 }
