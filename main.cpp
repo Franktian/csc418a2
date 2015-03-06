@@ -911,6 +911,8 @@ void drawHead()
 {
 	glPushMatrix();
 		glTranslatef(0.0, 1.2, 0.0);
+		glRotatef(joint_ui_data->getDOF(Keyframe::HEAD), 0, 0, 1);
+		glTranslatef(0.0, 0.5, 0.0);
 		glScalef(0.9f, 0.5f, 0.5f);
 		drawCube();
 	glPopMatrix();
