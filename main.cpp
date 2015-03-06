@@ -196,6 +196,7 @@ void motion(int x, int y);
 Vector getInterpolatedJointDOFS(float time);
 void drawCube();
 void drawBody();
+void drawHead();
 
 
 // Image functions
@@ -859,6 +860,11 @@ void display(void)
 
 	// SAMPLE CODE **********
 	//
+	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X), 1, 0, 0);
+	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
+	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
+
+	drawHead();
 	drawBody();
 	//
 	// SAMPLE CODE **********
@@ -878,6 +884,7 @@ void display(void)
     glutSwapBuffers();
 }
 
+// Draw the penguin body
 void drawBody()
 {
 	glPushMatrix();
@@ -895,6 +902,16 @@ void drawBody()
 
 		glScalef(0.8f, 1.2f, 0.5f);
 
+		drawCube();
+	glPopMatrix();
+}
+
+// Draw the penguin head
+void drawHead()
+{
+	glPushMatrix();
+		glTranslatef(0.0, 1.2, 0.0);
+		glScalef(0.9f, 0.5f, 0.5f);
 		drawCube();
 	glPopMatrix();
 }
