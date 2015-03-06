@@ -952,6 +952,11 @@ void drawArms()
 	glPushMatrix();
 		// left
 		glPushMatrix();
+			glTranslatef(0.0, 0.5, 0.0);
+			glRotatef(joint_ui_data->getDOF(Keyframe::L_SHOULDER_ROLL), 1, 0, 0);
+			glRotatef(joint_ui_data->getDOF(Keyframe::L_SHOULDER_YAW), 0, 1, 0);
+			glRotatef(joint_ui_data->getDOF(Keyframe::L_SHOULDER_PITCH), 0, 0, 1);
+			glTranslatef(0.0, -0.5, 0.0);
 			// upper
 			glPushMatrix();
 				glTranslatef(0.0, 0.0, 0.7);
@@ -971,6 +976,12 @@ void drawArms()
 		
 		//right
 		glPushMatrix();
+			glTranslatef(0.0, 0.5, 0.0);
+			glRotatef(joint_ui_data->getDOF(Keyframe::R_SHOULDER_ROLL), 1, 0, 0);
+			glRotatef(joint_ui_data->getDOF(Keyframe::R_SHOULDER_YAW), 0, 1, 0);
+			glRotatef(joint_ui_data->getDOF(Keyframe::R_SHOULDER_PITCH), 0, 0, 1);
+			glTranslatef(0.0, -0.5, 0.0);
+		
 			// upper
 			glPushMatrix();
 				glTranslatef(0.0, 0.0, -0.7);
