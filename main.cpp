@@ -197,6 +197,7 @@ Vector getInterpolatedJointDOFS(float time);
 void drawCube();
 void drawBody();
 void drawHead();
+void drawBeak();
 
 
 // Image functions
@@ -913,8 +914,30 @@ void drawHead()
 		glTranslatef(0.0, 1.2, 0.0);
 		glRotatef(joint_ui_data->getDOF(Keyframe::HEAD), 0, 0, 1);
 		glTranslatef(0.0, 0.5, 0.0);
+		drawBeak();
 		glScalef(0.9f, 0.5f, 0.5f);
 		drawCube();
+	glPopMatrix();
+}
+
+// Draw the penguin beak
+void drawBeak()
+{
+	glPushMatrix();
+	
+		// top beak
+		glPushMatrix();
+			glTranslatef(-1.2, 0.0, 0.0);
+			glScalef(0.3f, 0.05f, 0.1f);
+			drawCube();
+		glPopMatrix();
+		
+		// bottom beak
+		glPushMatrix();
+			glTranslatef(-1.2, -0.2, 0.0);
+			glScalef(0.3f, 0.05f, 0.1f);
+			drawCube();
+		glPopMatrix();
 	glPopMatrix();
 }
 
