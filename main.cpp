@@ -195,6 +195,7 @@ void motion(int x, int y);
 // Functions to help draw the object
 Vector getInterpolatedJointDOFS(float time);
 void drawCube();
+void drawBody();
 
 
 // Image functions
@@ -858,28 +859,7 @@ void display(void)
 
 	// SAMPLE CODE **********
 	//
-	glPushMatrix();
-	
-		// setup rotation for body part
-		glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X),
-				  joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y),
-				  joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z),
-				  0.0);
-
-		// setup transformation for body part
-		glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
-					 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
-					 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Z));
-		// glRotatef(30.0, 0.0, 1.0, 0.0);
-		// glRotatef(30.0, 1.0, 0.0, 0.0);
-
-		// determine render style and set glPolygonMode appropriately
-
-		// draw body part
-		//glColor3f(1.0, 1.0, 1.0);
-		drawCube();
-
-	glPopMatrix();
+	drawBody();
 	//
 	// SAMPLE CODE **********
 
@@ -896,6 +876,25 @@ void display(void)
     // Now, show the frame buffer that we just drew into.
     // (this prevents flickering).
     glutSwapBuffers();
+}
+
+void drawBody()
+{
+	glPushMatrix();
+		// setup rotation for body part
+		//glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X),
+		//		  joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y),
+		//		  joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z),
+		//		  0.0);
+
+		// setup transformation for body part
+		//glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
+		//			 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
+		//			 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Z));
+		//glScalef(0.8f, 1.2f, 0.5f);
+
+		drawCube();
+	glPopMatrix();
 }
 
 
