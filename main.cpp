@@ -167,7 +167,7 @@ const float HIP_YAW_MAX          =  45.0;
 const float HIP_ROLL_MIN         = -45.0;
 const float HIP_ROLL_MAX         =  45.0;
 const float BEAK_MIN             =  0.0;
-const float BEAK_MAX             =  1.0;
+const float BEAK_MAX             =  10.0;
 const float ELBOW_MIN            =  0.0;
 const float ELBOW_MAX            = 75.0;
 const float KNEE_MIN             =  0.0;
@@ -934,6 +934,7 @@ void drawBeak()
 		
 		// bottom beak
 		glPushMatrix();
+			glTranslatef(0.0, joint_ui_data->getDOF(Keyframe::BEAK), 0.0);
 			glTranslatef(-1.2, -0.2, 0.0);
 			glScalef(0.3f, 0.05f, 0.1f);
 			drawCube();
