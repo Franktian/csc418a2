@@ -199,6 +199,7 @@ void drawBody();
 void drawHead();
 void drawBeak();
 void drawArms();
+void drawLegs();
 
 
 // Image functions
@@ -864,6 +865,12 @@ void display(void)
 	//
 	glRotatef(60, 0, 1, 0);
 	
+	// Global translation control
+	glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
+				 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
+				 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Z));
+
+	// Global rotation control
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X), 1, 0, 0);
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
@@ -871,6 +878,7 @@ void display(void)
 	drawHead();
 	drawBody();
 	drawArms();
+	drawLegs();
 	//
 	// SAMPLE CODE **********
 
@@ -995,6 +1003,63 @@ void drawArms()
 				glRotatef(joint_ui_data->getDOF(Keyframe::R_ELBOW), 0, 0, 1);
 				glTranslatef(0.0, -0.2, 0.0);
 				glScalef(0.3f, 0.2f, 0.1f);
+				drawCube();
+			glPopMatrix();
+		glPopMatrix();
+	glPopMatrix();
+}
+
+void drawLegs()
+{
+	glPushMatrix();
+		// left
+		glPushMatrix();
+			glTranslatef(0.0, -1.2, -0.2);
+			glRotatef(-45, 0, 0, 1);
+			glRotatef(joint_ui_data->getDOF(Keyframe::L_HIP_ROLL), 1, 0, 0);
+			glRotatef(joint_ui_data->getDOF(Keyframe::L_HIP_YAW), 0, 1, 0);
+			glRotatef(-joint_ui_data->getDOF(Keyframe::L_HIP_PITCH), 0, 0, 1);
+			glTranslatef(0.0, 1.5, 0.0);
+			// upper
+			glPushMatrix();
+				glTranslatef(0.0, -2.0, 0.0);
+				glScalef(0.1f, 0.5f, 0.1f);
+				drawCube();
+			glPopMatrix();
+			
+			// lower
+			glPushMatrix();
+				glTranslatef(0.0, -2.5, 0.0);
+				glRotatef(-joint_ui_data->getDOF(Keyframe::L_KNEE), 0, 0, 1);
+				glRotatef(-90, 0, 0, 1);
+				glTranslatef(0.0, -0.2, 0.0);
+				glScalef(0.05f, 0.2f, 0.2f);
+				drawCube();
+			glPopMatrix();
+		glPopMatrix();
+		
+		// right
+		glPushMatrix();
+			glTranslatef(0.0, -1.2, 0.2);
+			glRotatef(45, 0, 0, 1);
+			glRotatef(joint_ui_data->getDOF(Keyframe::R_HIP_ROLL), 1, 0, 0);
+			glRotatef(joint_ui_data->getDOF(Keyframe::R_HIP_YAW), 0, 1, 0);
+			glRotatef(-joint_ui_data->getDOF(Keyframe::R_HIP_PITCH), 0, 0, 1);
+			glTranslatef(0.0, 1.5, 0.0);
+			// upper
+			glPushMatrix();
+				glTranslatef(0.0, -2.0, 0.0);
+				glScalef(0.1f, 0.5f, 0.1f);
+				drawCube();
+			glPopMatrix();
+			
+			// lower
+			glPushMatrix();
+				glTranslatef(0.0, -2.5, 0.0);
+				glRotatef(-joint_ui_data->getDOF(Keyframe::R_KNEE), 0, 0, 1);
+				glRotatef(-90, 0, 0, 1);
+				glTranslatef(0.0, -0.2, 0.0);
+				glScalef(0.05f, 0.2f, 0.2f);
 				drawCube();
 			glPopMatrix();
 		glPopMatrix();
