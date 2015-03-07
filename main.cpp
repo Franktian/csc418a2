@@ -172,6 +172,9 @@ const float ELBOW_MIN            =  0.0;
 const float ELBOW_MAX            = 75.0;
 const float KNEE_MIN             =  0.0;
 const float KNEE_MAX             = 75.0;
+// Defined range for light angle
+const float LIGHT_ANGLE_MIN      = 0.0;
+const float LIGHT_ANGLE_MAX      = 360.0;
 
 
 // ***********  FUNCTION HEADER DECLARATIONS ****************
@@ -616,6 +619,13 @@ void initGlui()
 	//   file, and to also add the appropriate enums to the
 	//   enumeration in the Keyframe class (keyframe.h).
 	///////////////////////////////////////////////////////////
+	
+	// Create controls to specify light angle
+	glui_panel = glui_joints->add_panel("Light");
+	
+	glui_spinner = glui_joints->add_spinner_to_panel(glui_panel, "light angle:", GLUI_SPINNER_FLOAT, joint_ui_data->getDOFPtr(Keyframe::LIGHT_ANGLE));
+	glui_spinner->set_float_limits(LIGHT_ANGLE_MIN, LIGHT_ANGLE_MAX, GLUI_LIMIT_CLAMP);
+	glui_spinner->set_speed(SPINNER_SPEED);
 
 	//
 	// ***************************************************
