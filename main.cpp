@@ -195,11 +195,13 @@ void motion(int x, int y);
 // Functions to help draw the object
 Vector getInterpolatedJointDOFS(float time);
 void drawCube();
+void drawPenguin();
 void drawBody();
 void drawHead();
 void drawBeak();
 void drawArms();
 void drawLegs();
+bool renderColor();
 
 
 // Image functions
@@ -863,8 +865,10 @@ void display(void)
 
 	// SAMPLE CODE **********
 	//
-	glRotatef(60, 0, 1, 0);
 	
+	// Render penguin based on chosen style
+	glPushMatrix();
+
 	// Global translation control
 	glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
 				 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
@@ -875,10 +879,27 @@ void display(void)
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
 	
-	drawHead();
-	drawBody();
-	drawArms();
-	drawLegs();
+	// Control wirefram, outlined rendering style
+	switch (renderStyle)
+	{
+		case SOLID:
+			glPolygonMode(GL_FRONT, GL_FILL);
+			break;
+		case OUTLINED:
+			glPolygonMode(GL_FRONT, GL_FILL);
+			renderStyle = SOLID;
+			drawPenguin();
+			renderStyle = OUTLINED;
+			glPolygonOffset(1.5f, 2.0f);
+		case WIREFRAME:
+		default:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			break;
+	}
+	
+	drawPenguin();
+	
+	glPopMatrix();
 	//
 	// SAMPLE CODE **********
 
@@ -897,22 +918,21 @@ void display(void)
     glutSwapBuffers();
 }
 
+// Draw the penguin
+void drawPenguin()
+{
+	glPushMatrix();
+		drawHead();
+		drawBody();
+		drawArms();
+		drawLegs();
+	glPopMatrix();
+}
+
 // Draw the penguin body
 void drawBody()
 {
 	glPushMatrix();
-		// setup rotation for body part
-
-		// setup transformation for body part
-		//glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
-		//			 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
-		//			 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Z));
-
-		//glRotatef(-30.0, 0.0, 0.0, 1.0);
-		//glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X), 1, 0, 0);
-		//glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
-		//glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
-
 		glScalef(0.8f, 1.2f, 0.5f);
 
 		drawCube();
@@ -1066,6 +1086,10 @@ void drawLegs()
 	glPopMatrix();
 }
 
+bool renderColor()
+{
+	return (renderStyle != OUTLINED) && (renderStyle != WIREFRAME);
+}
 
 // Handles mouse button pressed / released events
 void mouse(int button, int state, int x, int y)
@@ -1109,43 +1133,44 @@ void motion(int x, int y)
 void drawCube()
 {
 	glBegin(GL_QUADS);
+		glColor3f(0.0, 0.0, 0.0); // Black wireframe
 		// draw front face
-		glColor3f(0.9, 0.9, 0.9);
+		if (renderColor()) glColor3f(0.9, 0.9, 0.9);
 		glVertex3f(-1.0, -1.0, 1.0);
 		glVertex3f( 1.0, -1.0, 1.0);
 		glVertex3f( 1.0,  1.0, 1.0);
 		glVertex3f(-1.0,  1.0, 1.0);
 
 		// draw back face
-		glColor3f(0.72, 0.72, 0.72);
+		if (renderColor()) glColor3f(0.72, 0.72, 0.72);
 		glVertex3f( 1.0, -1.0, -1.0);
 		glVertex3f(-1.0, -1.0, -1.0);
 		glVertex3f(-1.0,  1.0, -1.0);
 		glVertex3f( 1.0,  1.0, -1.0);
 
 		// draw left face
-		glColor3f(0.54, 0.54, 0.54);
+		if (renderColor()) glColor3f(0.54, 0.54, 0.54);
 		glVertex3f(-1.0, -1.0, -1.0);
 		glVertex3f(-1.0, -1.0,  1.0);
 		glVertex3f(-1.0,  1.0,  1.0);
 		glVertex3f(-1.0,  1.0, -1.0);
 
 		// draw right face
-		glColor3f(0.36, 0.36, 0.36);
+		if (renderColor()) glColor3f(0.36, 0.36, 0.36);
 		glVertex3f( 1.0, -1.0,  1.0);
 		glVertex3f( 1.0, -1.0, -1.0);
 		glVertex3f( 1.0,  1.0, -1.0);
 		glVertex3f( 1.0,  1.0,  1.0);
 
 		// draw top
-		glColor3f(0.18, 0.18, 0.18);
+		if (renderColor()) glColor3f(0.18, 0.18, 0.18);
 		glVertex3f(-1.0,  1.0,  1.0);
 		glVertex3f( 1.0,  1.0,  1.0);
 		glVertex3f( 1.0,  1.0, -1.0);
 		glVertex3f(-1.0,  1.0, -1.0);
 
 		// draw bottom
-		glColor3f(0.0, 0.0, 0.0);
+		if (renderColor()) glColor3f(0.0, 0.0, 0.0);
 		glVertex3f(-1.0, -1.0, -1.0);
 		glVertex3f( 1.0, -1.0, -1.0);
 		glVertex3f( 1.0, -1.0,  1.0);
