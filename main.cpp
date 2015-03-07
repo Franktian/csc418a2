@@ -869,22 +869,6 @@ void display(void)
 	// Render penguin based on chosen style
 	glPushMatrix();
 
-	switch (renderStyle)
-	{
-		case SOLID:
-			glPolygonMode(GL_FRONT, GL_FILL);
-			break;
-		case OUTLINED:
-			glPolygonMode(GL_FRONT, GL_FILL);
-			break;
-		case WIREFRAME:
-		default:
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			break;
-	}
-	//glPolygonMode(GL_FRONT, GL_FILL);
-	glRotatef(60, 0, 1, 0);
-	
 	// Global translation control
 	glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
 				 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
@@ -894,6 +878,24 @@ void display(void)
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X), 1, 0, 0);
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
 	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
+	
+	// Control wirefram, outlined rendering style
+	switch (renderStyle)
+	{
+		case SOLID:
+			glPolygonMode(GL_FRONT, GL_FILL);
+			break;
+		case OUTLINED:
+			glPolygonMode(GL_FRONT, GL_FILL);
+			renderStyle = SOLID;
+			drawPenguin();
+			renderStyle = OUTLINED;
+			glPolygonOffset(1.5f, 2.0f);
+		case WIREFRAME:
+		default:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			break;
+	}
 	
 	drawPenguin();
 	
