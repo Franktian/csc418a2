@@ -55,7 +55,7 @@
 
 const float PI = 3.14159;
 
-const float SPINNER_SPEED = 0.1;
+const float SPINNER_SPEED = 1;
 
 // --------------- USER INTERFACE VARIABLES -----------------
 
@@ -167,7 +167,7 @@ const float HIP_YAW_MAX          =  45.0;
 const float HIP_ROLL_MIN         = -45.0;
 const float HIP_ROLL_MAX         =  45.0;
 const float BEAK_MIN             =  0.0;
-const float BEAK_MAX             =  10.0;
+const float BEAK_MAX             =  0.1;
 const float ELBOW_MIN            =  0.0;
 const float ELBOW_MAX            = 75.0;
 const float KNEE_MIN             =  0.0;
@@ -521,7 +521,7 @@ void initGlui()
 
 	glui_spinner = glui_joints->add_spinner_to_panel(glui_panel, "beak:", GLUI_SPINNER_FLOAT, joint_ui_data->getDOFPtr(Keyframe::BEAK));
 	glui_spinner->set_float_limits(BEAK_MIN, BEAK_MAX, GLUI_LIMIT_CLAMP);
-	glui_spinner->set_speed(SPINNER_SPEED);
+	glui_spinner->set_speed(SPINNER_SPEED * 10);
 
 
 	glui_joints->add_column(false);
