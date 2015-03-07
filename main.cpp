@@ -88,7 +88,7 @@ const GLdouble NEAR_CLIP   = 0.1;
 const GLdouble FAR_CLIP    = 1000.0;
 
 // Render settings
-enum { WIREFRAME, SOLID, OUTLINED };	// README: the different render styles
+enum { WIREFRAME, SOLID, OUTLINED, SHINYMETAL, MATTE };	// README: the different render styles
 int renderStyle = WIREFRAME;			// README: the selected render style
 
 // Animation settings
@@ -206,6 +206,7 @@ void drawArms();
 void drawLegs();
 void drawLight();
 bool renderColor();
+void setMaterial();
 
 
 // Image functions
@@ -685,6 +686,8 @@ void initGlui()
 	glui_render->add_radiobutton_to_group(glui_radio_group, "Wireframe");
 	glui_render->add_radiobutton_to_group(glui_radio_group, "Solid");
 	glui_render->add_radiobutton_to_group(glui_radio_group, "Solid w/ outlines");
+	glui_render->add_radiobutton_to_group(glui_radio_group, "Shiny Metal");
+	glui_render->add_radiobutton_to_group(glui_radio_group, "Matte");
 	//
 	// ***************************************************
 
@@ -706,17 +709,17 @@ void initGl(void)
     glEnable(GL_NORMALIZE);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    
-     // Initialize lighting.
-	//GLfloat light_ambient[] = {0.2, 0.2, 0.2, 1.0};
-	//GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-	//GLfloat light_specular[] = {1.0, 1.0, 1.0, 1.0};
-	//GLfloat light_position[] = {1.0, 1.0, 0.0, 1.0};
 
-	//glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	//glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-	//glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+     // Initialize lighting.
+	GLfloat light_ambient[] = {0.2, 0.2, 0.2, 1.0};
+	GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
+	GLfloat light_specular[] = {1.0, 1.0, 1.0, 1.0};
+	GLfloat light_position[] = {50.0, 20.0, 20.0, 35.0};
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_LIGHTING);
@@ -892,7 +895,9 @@ void display(void)
 
 	// SAMPLE CODE **********
 	//
-	drawLight();
+	glPushMatrix();
+		drawLight();
+	glPopMatrix();
 	// Render penguin based on chosen style
 	glPushMatrix();
 
@@ -909,6 +914,8 @@ void display(void)
 	// Control wirefram, outlined rendering style
 	switch (renderStyle)
 	{
+		case SHINYMETAL:
+		case MATTE:
 		case SOLID:
 			glPolygonMode(GL_FRONT, GL_FILL);
 			break;
@@ -923,7 +930,7 @@ void display(void)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			break;
 	}
-	
+
 	drawPenguin();
 	
 	glPopMatrix();
@@ -951,10 +958,10 @@ void drawLight()
 	glPushMatrix();
 		glLoadIdentity();
 		GLfloat light_position[] = {
-			cosf(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE)),
-			sinf(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE)),
-			0.0,
-			1.0
+			50.0,
+			20.0,
+			20.0,
+			35.0
 		};
 		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glPopMatrix();
@@ -1133,6 +1140,37 @@ bool renderColor()
 	return (renderStyle != OUTLINED) && (renderStyle != WIREFRAME);
 }
 
+void setMaterial() {
+	if (renderStyle == SHINYMETAL) {
+		GLfloat ambient[] = {0.25, 0.25, 0.25};
+		GLfloat diffuse[] = {0.4, 0.4, 0.4};
+		GLfloat specular[] = {0.774597, 0.774597, 0.774597};
+		GLfloat shininess = 0.6 * 128;
+
+		glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+		glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+	} else if (renderStyle == MATTE) {
+		GLfloat ambient[] = {0.02, 0.02, 0.02};
+		GLfloat diffuse[] = {0.01, 0.01, 0.01};
+		GLfloat specular[] = {0.4, 0.4, 0.4};
+		GLfloat shininess = 0.78125 * 128;
+
+		glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+		glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+	} else {
+		GLfloat blank[] = {0, 0, 0, 1.0};
+
+		glMaterialfv(GL_FRONT, GL_AMBIENT, blank);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, blank);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, blank);
+		glMaterialf(GL_FRONT, GL_SHININESS, 0);
+	}
+}
+
 // Handles mouse button pressed / released events
 void mouse(int button, int state, int x, int y)
 {
@@ -1174,48 +1212,73 @@ void motion(int x, int y)
 // README: Helper code for drawing a cube
 void drawCube()
 {
+	setMaterial();
 	glBegin(GL_QUADS);
 		glColor3f(0.0, 0.0, 0.0); // Black wireframe
 		// draw front face
 		if (renderColor()) glColor3f(0.9, 0.9, 0.9);
+		glNormal3f(0, 0, 1.0);
 		glVertex3f(-1.0, -1.0, 1.0);
+		glNormal3f(0, 0, 1.0);
 		glVertex3f( 1.0, -1.0, 1.0);
+		glNormal3f(0, 0, 1.0);
 		glVertex3f( 1.0,  1.0, 1.0);
+		glNormal3f(0, 0, 1.0);
 		glVertex3f(-1.0,  1.0, 1.0);
 
 		// draw back face
 		if (renderColor()) glColor3f(0.72, 0.72, 0.72);
+		glNormal3f(0, 0, -1.0);
 		glVertex3f( 1.0, -1.0, -1.0);
+		glNormal3f(0, 0, -1.0);
 		glVertex3f(-1.0, -1.0, -1.0);
+		glNormal3f(0, 0, -1.0);
 		glVertex3f(-1.0,  1.0, -1.0);
+		glNormal3f(0, 0, -1.0);
 		glVertex3f( 1.0,  1.0, -1.0);
 
 		// draw left face
 		if (renderColor()) glColor3f(0.54, 0.54, 0.54);
+		glNormal3f(-1.0, 0, 0);
 		glVertex3f(-1.0, -1.0, -1.0);
+		glNormal3f(-1.0, 0, 0);
 		glVertex3f(-1.0, -1.0,  1.0);
+		glNormal3f(-1.0, 0, 0);
 		glVertex3f(-1.0,  1.0,  1.0);
+		glNormal3f(-1.0, 0, 0);
 		glVertex3f(-1.0,  1.0, -1.0);
 
 		// draw right face
 		if (renderColor()) glColor3f(0.36, 0.36, 0.36);
+		glNormal3f(1.0, 0, 0);
 		glVertex3f( 1.0, -1.0,  1.0);
+		glNormal3f(1.0, 0, 0);
 		glVertex3f( 1.0, -1.0, -1.0);
+		glNormal3f(1.0, 0, 0);
 		glVertex3f( 1.0,  1.0, -1.0);
+		glNormal3f(1.0, 0, 0);
 		glVertex3f( 1.0,  1.0,  1.0);
 
 		// draw top
 		if (renderColor()) glColor3f(0.18, 0.18, 0.18);
+		glNormal3f(0, 1.0, 0);
 		glVertex3f(-1.0,  1.0,  1.0);
+		glNormal3f(0, 1.0, 0);
 		glVertex3f( 1.0,  1.0,  1.0);
+		glNormal3f(0, 1.0, 0);
 		glVertex3f( 1.0,  1.0, -1.0);
+		glNormal3f(0, 1.0, 0);
 		glVertex3f(-1.0,  1.0, -1.0);
 
 		// draw bottom
 		if (renderColor()) glColor3f(0.0, 0.0, 0.0);
+		glNormal3f(0, -1.0, 0);
 		glVertex3f(-1.0, -1.0, -1.0);
+		glNormal3f(0, -1.0, 0);
 		glVertex3f( 1.0, -1.0, -1.0);
+		glNormal3f(0, -1.0, 0);
 		glVertex3f( 1.0, -1.0,  1.0);
+		glNormal3f(0, -1.0, 0);
 		glVertex3f(-1.0, -1.0,  1.0);
 	glEnd();
 }
