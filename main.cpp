@@ -1014,18 +1014,34 @@ void drawLegs()
 	glPushMatrix();
 		// left
 		glPushMatrix();
+			glTranslatef(0.0, -1.2, -0.2);
+			glRotatef(-45, 0, 0, 1);
+			glRotatef(joint_ui_data->getDOF(Keyframe::L_HIP_ROLL), 1, 0, 0);
+			glRotatef(joint_ui_data->getDOF(Keyframe::L_HIP_YAW), 0, 1, 0);
+			glRotatef(-joint_ui_data->getDOF(Keyframe::L_HIP_PITCH), 0, 0, 1);
+			glTranslatef(0.0, 1.5, 0.0);
 			// upper
 			glPushMatrix();
+				glTranslatef(0.0, -2.0, 0.0);
+				glScalef(0.1f, 0.5f, 0.1f);
+				drawCube();
 			glPopMatrix();
 			
 			// lower
 			glPushMatrix();
+				glTranslatef(0.0, -2.5, 0.0);
+				glRotatef(-joint_ui_data->getDOF(Keyframe::L_KNEE), 0, 0, 1);
+				glRotatef(-90, 0, 0, 1);
+				glTranslatef(0.0, -0.2, 0.0);
+				glScalef(0.05f, 0.2f, 0.2f);
+				drawCube();
 			glPopMatrix();
 		glPopMatrix();
 		
 		// right
 		glPushMatrix();
 			glTranslatef(0.0, -1.2, 0.2);
+			glRotatef(45, 0, 0, 1);
 			glRotatef(joint_ui_data->getDOF(Keyframe::R_HIP_ROLL), 1, 0, 0);
 			glRotatef(joint_ui_data->getDOF(Keyframe::R_HIP_YAW), 0, 1, 0);
 			glRotatef(-joint_ui_data->getDOF(Keyframe::R_HIP_PITCH), 0, 0, 1);
