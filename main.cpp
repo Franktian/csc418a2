@@ -204,6 +204,7 @@ void drawHead();
 void drawBeak();
 void drawArms();
 void drawLegs();
+void drawLight();
 bool renderColor();
 
 
@@ -705,6 +706,22 @@ void initGl(void)
     glEnable(GL_NORMALIZE);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+    
+     // Initialize lighting.
+	//GLfloat light_ambient[] = {0.2, 0.2, 0.2, 1.0};
+	//GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
+	//GLfloat light_specular[] = {1.0, 1.0, 1.0, 1.0};
+	//GLfloat light_position[] = {1.0, 1.0, 0.0, 1.0};
+
+	//glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+	//glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	//glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glDepthFunc(GL_LESS);
 
 }
 
@@ -875,7 +892,7 @@ void display(void)
 
 	// SAMPLE CODE **********
 	//
-	
+	drawLight();
 	// Render penguin based on chosen style
 	glPushMatrix();
 
@@ -926,6 +943,21 @@ void display(void)
     // Now, show the frame buffer that we just drew into.
     // (this prevents flickering).
     glutSwapBuffers();
+}
+
+// Draw the light source
+void drawLight()
+{
+	glPushMatrix();
+		glLoadIdentity();
+		GLfloat light_position[] = {
+			cosf(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE)),
+			sinf(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE)),
+			0.0,
+			1.0
+		};
+		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glPopMatrix();
 }
 
 // Draw the penguin
