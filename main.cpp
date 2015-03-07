@@ -1025,7 +1025,11 @@ void drawLegs()
 		
 		// right
 		glPushMatrix();
-			
+			glTranslatef(0.0, -1.2, 0.2);
+			glRotatef(joint_ui_data->getDOF(Keyframe::R_HIP_ROLL), 1, 0, 0);
+			glRotatef(joint_ui_data->getDOF(Keyframe::R_HIP_YAW), 0, 1, 0);
+			glRotatef(-joint_ui_data->getDOF(Keyframe::R_HIP_PITCH), 0, 0, 1);
+			glTranslatef(0.0, 1.5, 0.0);
 			// upper
 			glPushMatrix();
 				glTranslatef(0.0, -2.0, 0.0);
