@@ -199,6 +199,7 @@ void drawBody();
 void drawHead();
 void drawBeak();
 void drawArms();
+void drawLegs();
 
 
 // Image functions
@@ -877,6 +878,7 @@ void display(void)
 	drawHead();
 	drawBody();
 	drawArms();
+	drawLegs();
 	//
 	// SAMPLE CODE **********
 
@@ -1001,6 +1003,43 @@ void drawArms()
 				glRotatef(joint_ui_data->getDOF(Keyframe::R_ELBOW), 0, 0, 1);
 				glTranslatef(0.0, -0.2, 0.0);
 				glScalef(0.3f, 0.2f, 0.1f);
+				drawCube();
+			glPopMatrix();
+		glPopMatrix();
+	glPopMatrix();
+}
+
+void drawLegs()
+{
+	glPushMatrix();
+		// left
+		glPushMatrix();
+			// upper
+			glPushMatrix();
+			glPopMatrix();
+			
+			// lower
+			glPushMatrix();
+			glPopMatrix();
+		glPopMatrix();
+		
+		// right
+		glPushMatrix();
+			
+			// upper
+			glPushMatrix();
+				glTranslatef(0.0, -2.0, 0.0);
+				glScalef(0.1f, 0.5f, 0.1f);
+				drawCube();
+			glPopMatrix();
+			
+			// lower
+			glPushMatrix();
+				glTranslatef(0.0, -2.5, 0.0);
+				glRotatef(-joint_ui_data->getDOF(Keyframe::R_KNEE), 0, 0, 1);
+				glRotatef(-90, 0, 0, 1);
+				glTranslatef(0.0, -0.2, 0.0);
+				glScalef(0.05f, 0.2f, 0.2f);
 				drawCube();
 			glPopMatrix();
 		glPopMatrix();
