@@ -712,20 +712,20 @@ void initGl(void)
     glEnable(GL_DEPTH_TEST);
 
      // Initialize lighting.
-	//GLfloat light_ambient[] = {0.2, 0.2, 0.2, 1.0};
-	//GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-	//GLfloat light_specular[] = {1.0, 1.0, 1.0, 1.0};
-	//GLfloat light_position[] = {50.0, 0.0, 20.0, 35.0};
+	GLfloat light_ambient[] = {0.2, 0.2, 0.2, 1.0};
+	GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
+	GLfloat light_specular[] = {1.0, 1.0, 1.0, 1.0};
+	GLfloat light_position[] = {150.0, 0.0, 20.0, 35.0};
 
-	//glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	//glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-	//glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-	//glEnable(GL_COLOR_MATERIAL);
-	//glEnable(GL_LIGHTING);
-	//glEnable(GL_LIGHT0);
-	//glDepthFunc(GL_LESS);
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glDepthFunc(GL_LESS);
 
 }
 
@@ -954,6 +954,7 @@ void setRenderStyle()
 			renderStyle = OUTLINED;
 		case WIREFRAME:
 		default:
+			glEnable(GL_LIGHTING);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			break;
 	}
@@ -965,8 +966,8 @@ void drawLight()
 	glPushMatrix();
 		glLoadIdentity();
 		GLfloat light_position[] = {
-			50.0 * cosf(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE)),
-			50.0 * sinf(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE)),
+			150.0 * cos(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE) * PI / 180),
+			150.0 * sin(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE) * PI / 180),
 			20.0,
 			35.0
 		};
