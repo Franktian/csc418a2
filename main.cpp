@@ -55,7 +55,7 @@
 
 const float PI = 3.14159;
 
-const float SPINNER_SPEED = 0.1;
+const float SPINNER_SPEED = 1;
 
 // --------------- USER INTERFACE VARIABLES -----------------
 
@@ -88,7 +88,7 @@ const GLdouble NEAR_CLIP   = 0.1;
 const GLdouble FAR_CLIP    = 1000.0;
 
 // Render settings
-enum { WIREFRAME, SOLID, OUTLINED };	// README: the different render styles
+enum { WIREFRAME, SOLID, OUTLINED, SHINYMETAL, MATTE };	// README: the different render styles
 int renderStyle = WIREFRAME;			// README: the selected render style
 
 // Animation settings
@@ -167,11 +167,14 @@ const float HIP_YAW_MAX          =  45.0;
 const float HIP_ROLL_MIN         = -45.0;
 const float HIP_ROLL_MAX         =  45.0;
 const float BEAK_MIN             =  0.0;
-const float BEAK_MAX             =  10.0;
+const float BEAK_MAX             =  0.1;
 const float ELBOW_MIN            =  0.0;
 const float ELBOW_MAX            = 75.0;
 const float KNEE_MIN             =  0.0;
 const float KNEE_MAX             = 75.0;
+// Defined range for light angle
+const float LIGHT_ANGLE_MIN      = 0.0;
+const float LIGHT_ANGLE_MAX      = 360.0;
 
 
 // ***********  FUNCTION HEADER DECLARATIONS ****************
@@ -201,7 +204,10 @@ void drawHead();
 void drawBeak();
 void drawArms();
 void drawLegs();
+void drawLight();
 bool renderColor();
+void setPolygonMaterial();
+void setRenderStyle();
 
 
 // Image functions
@@ -521,7 +527,7 @@ void initGlui()
 
 	glui_spinner = glui_joints->add_spinner_to_panel(glui_panel, "beak:", GLUI_SPINNER_FLOAT, joint_ui_data->getDOFPtr(Keyframe::BEAK));
 	glui_spinner->set_float_limits(BEAK_MIN, BEAK_MAX, GLUI_LIMIT_CLAMP);
-	glui_spinner->set_speed(SPINNER_SPEED);
+	glui_spinner->set_speed(SPINNER_SPEED * 10);
 
 
 	glui_joints->add_column(false);
@@ -616,6 +622,13 @@ void initGlui()
 	//   file, and to also add the appropriate enums to the
 	//   enumeration in the Keyframe class (keyframe.h).
 	///////////////////////////////////////////////////////////
+	
+	// Create controls to specify light angle
+	glui_panel = glui_joints->add_panel("Light");
+	
+	glui_spinner = glui_joints->add_spinner_to_panel(glui_panel, "light angle:", GLUI_SPINNER_FLOAT, joint_ui_data->getDOFPtr(Keyframe::LIGHT_ANGLE));
+	glui_spinner->set_float_limits(LIGHT_ANGLE_MIN, LIGHT_ANGLE_MAX, GLUI_LIMIT_CLAMP);
+	glui_spinner->set_speed(SPINNER_SPEED);
 
 	//
 	// ***************************************************
@@ -674,6 +687,8 @@ void initGlui()
 	glui_render->add_radiobutton_to_group(glui_radio_group, "Wireframe");
 	glui_render->add_radiobutton_to_group(glui_radio_group, "Solid");
 	glui_render->add_radiobutton_to_group(glui_radio_group, "Solid w/ outlines");
+	glui_render->add_radiobutton_to_group(glui_radio_group, "Shiny Metal");
+	glui_render->add_radiobutton_to_group(glui_radio_group, "Matte");
 	//
 	// ***************************************************
 
@@ -695,6 +710,22 @@ void initGl(void)
     glEnable(GL_NORMALIZE);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+
+     // Initialize lighting.
+	GLfloat light_ambient[] = {0.2, 0.2, 0.2, 1.0};
+	GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
+	GLfloat light_specular[] = {1.0, 1.0, 1.0, 1.0};
+	GLfloat light_position[] = {150.0, 0.0, 20.0, 35.0};
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glDepthFunc(GL_LESS);
 
 }
 
@@ -865,43 +896,31 @@ void display(void)
 
 	// SAMPLE CODE **********
 	//
-	
-	// Render penguin based on chosen style
+
+
+	// Draw the light source
 	glPushMatrix();
+		drawLight();
+	glPopMatrix();
 
-	// Global translation control
-	glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
-				 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
-				 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Z));
+	// Draw the penguin
+	glPushMatrix();
+		// Global translation control
+		glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
+					 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
+					 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Z));
 
-	// Global rotation control
-	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X), 1, 0, 0);
-	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
-	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
-	
-	// Control wirefram, outlined rendering style
-	switch (renderStyle)
-	{
-		case SOLID:
-			glPolygonMode(GL_FRONT, GL_FILL);
-			break;
-		case OUTLINED:
-			glPolygonMode(GL_FRONT, GL_FILL);
-			renderStyle = SOLID;
-			drawPenguin();
-			renderStyle = OUTLINED;
-			glPolygonOffset(1.5f, 2.0f);
-		case WIREFRAME:
-		default:
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			break;
-	}
-	
-	drawPenguin();
+		// Global rotation control
+		glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X), 1, 0, 0);
+		glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
+		glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
+
+		// Set rendering style
+		setRenderStyle();
+
+		drawPenguin();
 	
 	glPopMatrix();
-	//
-	// SAMPLE CODE **********
 
     // Execute any GL functions that are in the queue just to be safe
     glFlush();
@@ -916,6 +935,44 @@ void display(void)
     // Now, show the frame buffer that we just drew into.
     // (this prevents flickering).
     glutSwapBuffers();
+}
+
+void setRenderStyle()
+{
+	// Control wirefram, outlined rendering style
+	switch (renderStyle)
+	{
+		case SHINYMETAL:
+		case MATTE:
+		case SOLID:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			break;
+		case OUTLINED:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			renderStyle = SOLID;
+			drawPenguin();
+			renderStyle = OUTLINED;
+		case WIREFRAME:
+		default:
+			glEnable(GL_LIGHTING);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			break;
+	}
+}
+
+// Draw the light source, circle parallel to xy plane
+void drawLight()
+{
+	glPushMatrix();
+		glLoadIdentity();
+		GLfloat light_position[] = {
+			150.0 * cos(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE) * PI / 180),
+			150.0 * sin(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE) * PI / 180),
+			20.0,
+			35.0
+		};
+		glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glPopMatrix();
 }
 
 // Draw the penguin
@@ -980,20 +1037,20 @@ void drawArms()
 	glPushMatrix();
 		// left
 		glPushMatrix();
-			glTranslatef(0.0, 0.5, 0.0);
+			glTranslatef(0.0, 0.5, 0.7);
 			glRotatef(joint_ui_data->getDOF(Keyframe::L_SHOULDER_ROLL), 1, 0, 0);
 			glRotatef(joint_ui_data->getDOF(Keyframe::L_SHOULDER_YAW), 0, 1, 0);
 			glRotatef(joint_ui_data->getDOF(Keyframe::L_SHOULDER_PITCH), 0, 0, 1);
 			glTranslatef(0.0, -0.5, 0.0);
 			// upper
 			glPushMatrix();
-				glTranslatef(0.0, 0.0, 0.7);
+				glTranslatef(0.0, 0.0, 0.0);
 				glScalef(0.3f, 0.5f, 0.1f);
 				drawCube();
 			glPopMatrix();
 			// lower
 			glPushMatrix();
-				glTranslatef(0.0, -0.5, 0.7);
+				glTranslatef(0.0, -0.5, 0.0);
 				glRotatef(-45, 0, 0, 1);
 				glRotatef(joint_ui_data->getDOF(Keyframe::L_ELBOW), 0, 0, 1);
 				glTranslatef(0.0, -0.2, 0.0);
@@ -1004,7 +1061,7 @@ void drawArms()
 		
 		//right
 		glPushMatrix();
-			glTranslatef(0.0, 0.5, 0.0);
+			glTranslatef(0.0, 0.5, -0.7);
 			glRotatef(joint_ui_data->getDOF(Keyframe::R_SHOULDER_ROLL), 1, 0, 0);
 			glRotatef(joint_ui_data->getDOF(Keyframe::R_SHOULDER_YAW), 0, 1, 0);
 			glRotatef(joint_ui_data->getDOF(Keyframe::R_SHOULDER_PITCH), 0, 0, 1);
@@ -1012,13 +1069,13 @@ void drawArms()
 		
 			// upper
 			glPushMatrix();
-				glTranslatef(0.0, 0.0, -0.7);
+				glTranslatef(0.0, 0.0, 0.0);
 				glScalef(0.3f, 0.5f, 0.1f);
 				drawCube();
 			glPopMatrix();
 			// lower
 			glPushMatrix();
-				glTranslatef(0.0, -0.5, -0.7);
+				glTranslatef(0.0, -0.5, 0.0);
 				glRotatef(-45, 0, 0, 1);
 				glRotatef(joint_ui_data->getDOF(Keyframe::R_ELBOW), 0, 0, 1);
 				glTranslatef(0.0, -0.2, 0.0);
@@ -1091,6 +1148,37 @@ bool renderColor()
 	return (renderStyle != OUTLINED) && (renderStyle != WIREFRAME);
 }
 
+void setPolygonMaterial() {
+	if (renderStyle == SHINYMETAL) {
+		GLfloat ambient[] = {0.25, 0.25, 0.25};
+		GLfloat diffuse[] = {0.4, 0.4, 0.4};
+		GLfloat specular[] = {0.7, 0.7, 0.7};
+		GLfloat shininess = 0.6 * 128;
+
+		glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+		glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+	} else if (renderStyle == MATTE) {
+		GLfloat ambient[] = {0.02, 0.02, 0.02};
+		GLfloat diffuse[] = {0.01, 0.01, 0.01};
+		GLfloat specular[] = {0.4, 0.4, 0.4};
+		GLfloat shininess = 0.8 * 128;
+
+		glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+		glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+	} else {
+		GLfloat blank[] = {0, 0, 0, 1.0};
+
+		glMaterialfv(GL_FRONT, GL_AMBIENT, blank);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, blank);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, blank);
+		glMaterialf(GL_FRONT, GL_SHININESS, 0);
+	}
+}
+
 // Handles mouse button pressed / released events
 void mouse(int button, int state, int x, int y)
 {
@@ -1132,48 +1220,74 @@ void motion(int x, int y)
 // README: Helper code for drawing a cube
 void drawCube()
 {
+	setPolygonMaterial();
+
 	glBegin(GL_QUADS);
 		glColor3f(0.0, 0.0, 0.0); // Black wireframe
 		// draw front face
-		if (renderColor()) glColor3f(0.9, 0.9, 0.9);
+		if (renderColor()) glColor3f(0.72, 0.72, 0.72);
+		glNormal3f(0, 0, 1.0);
 		glVertex3f(-1.0, -1.0, 1.0);
+		glNormal3f(0, 0, 1.0);
 		glVertex3f( 1.0, -1.0, 1.0);
+		glNormal3f(0, 0, 1.0);
 		glVertex3f( 1.0,  1.0, 1.0);
+		glNormal3f(0, 0, 1.0);
 		glVertex3f(-1.0,  1.0, 1.0);
 
 		// draw back face
 		if (renderColor()) glColor3f(0.72, 0.72, 0.72);
+		glNormal3f(0, 0, -1.0);
 		glVertex3f( 1.0, -1.0, -1.0);
+		glNormal3f(0, 0, -1.0);
 		glVertex3f(-1.0, -1.0, -1.0);
+		glNormal3f(0, 0, -1.0);
 		glVertex3f(-1.0,  1.0, -1.0);
+		glNormal3f(0, 0, -1.0);
 		glVertex3f( 1.0,  1.0, -1.0);
 
 		// draw left face
-		if (renderColor()) glColor3f(0.54, 0.54, 0.54);
+		if (renderColor()) glColor3f(0.36, 0.36, 0.36);
+		glNormal3f(-1.0, 0, 0);
 		glVertex3f(-1.0, -1.0, -1.0);
+		glNormal3f(-1.0, 0, 0);
 		glVertex3f(-1.0, -1.0,  1.0);
+		glNormal3f(-1.0, 0, 0);
 		glVertex3f(-1.0,  1.0,  1.0);
+		glNormal3f(-1.0, 0, 0);
 		glVertex3f(-1.0,  1.0, -1.0);
 
 		// draw right face
 		if (renderColor()) glColor3f(0.36, 0.36, 0.36);
+		glNormal3f(1.0, 0, 0);
 		glVertex3f( 1.0, -1.0,  1.0);
+		glNormal3f(1.0, 0, 0);
 		glVertex3f( 1.0, -1.0, -1.0);
+		glNormal3f(1.0, 0, 0);
 		glVertex3f( 1.0,  1.0, -1.0);
+		glNormal3f(1.0, 0, 0);
 		glVertex3f( 1.0,  1.0,  1.0);
 
 		// draw top
 		if (renderColor()) glColor3f(0.18, 0.18, 0.18);
+		glNormal3f(0, 1.0, 0);
 		glVertex3f(-1.0,  1.0,  1.0);
+		glNormal3f(0, 1.0, 0);
 		glVertex3f( 1.0,  1.0,  1.0);
+		glNormal3f(0, 1.0, 0);
 		glVertex3f( 1.0,  1.0, -1.0);
+		glNormal3f(0, 1.0, 0);
 		glVertex3f(-1.0,  1.0, -1.0);
 
 		// draw bottom
 		if (renderColor()) glColor3f(0.0, 0.0, 0.0);
+		glNormal3f(0, -1.0, 0);
 		glVertex3f(-1.0, -1.0, -1.0);
+		glNormal3f(0, -1.0, 0);
 		glVertex3f( 1.0, -1.0, -1.0);
+		glNormal3f(0, -1.0, 0);
 		glVertex3f( 1.0, -1.0,  1.0);
+		glNormal3f(0, -1.0, 0);
 		glVertex3f(-1.0, -1.0,  1.0);
 	glEnd();
 }
