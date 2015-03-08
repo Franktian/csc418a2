@@ -1152,7 +1152,7 @@ void setPolygonMaterial() {
 	if (renderStyle == SHINYMETAL) {
 		GLfloat ambient[] = {0.25, 0.25, 0.25};
 		GLfloat diffuse[] = {0.4, 0.4, 0.4};
-		GLfloat specular[] = {0.774597, 0.774597, 0.774597};
+		GLfloat specular[] = {0.7, 0.7, 0.7};
 		GLfloat shininess = 0.6 * 128;
 
 		glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
@@ -1163,7 +1163,7 @@ void setPolygonMaterial() {
 		GLfloat ambient[] = {0.02, 0.02, 0.02};
 		GLfloat diffuse[] = {0.01, 0.01, 0.01};
 		GLfloat specular[] = {0.4, 0.4, 0.4};
-		GLfloat shininess = 0.78125 * 128;
+		GLfloat shininess = 0.8 * 128;
 
 		glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
