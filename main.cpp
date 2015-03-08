@@ -206,7 +206,8 @@ void drawArms();
 void drawLegs();
 void drawLight();
 bool renderColor();
-void setMaterial();
+void setPolygonMaterial();
+void setRenderStyle();
 
 
 // Image functions
@@ -711,20 +712,20 @@ void initGl(void)
     glEnable(GL_DEPTH_TEST);
 
      // Initialize lighting.
-	GLfloat light_ambient[] = {0.2, 0.2, 0.2, 1.0};
-	GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-	GLfloat light_specular[] = {1.0, 1.0, 1.0, 1.0};
-	GLfloat light_position[] = {50.0, 20.0, 20.0, 35.0};
+	//GLfloat light_ambient[] = {0.2, 0.2, 0.2, 1.0};
+	//GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
+	//GLfloat light_specular[] = {1.0, 1.0, 1.0, 1.0};
+	//GLfloat light_position[] = {50.0, 0.0, 20.0, 35.0};
 
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	//glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+	//glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	//glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-	glEnable(GL_COLOR_MATERIAL);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glDepthFunc(GL_LESS);
+	//glEnable(GL_COLOR_MATERIAL);
+	//glEnable(GL_LIGHTING);
+	//glEnable(GL_LIGHT0);
+	//glDepthFunc(GL_LESS);
 
 }
 
@@ -895,47 +896,31 @@ void display(void)
 
 	// SAMPLE CODE **********
 	//
+
+
+	// Draw the light source
 	glPushMatrix();
 		drawLight();
 	glPopMatrix();
-	// Render penguin based on chosen style
+
+	// Draw the penguin
 	glPushMatrix();
+		// Global translation control
+		glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
+					 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
+					 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Z));
 
-	// Global translation control
-	glTranslatef(joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_X),
-				 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Y),
-				 joint_ui_data->getDOF(Keyframe::ROOT_TRANSLATE_Z));
+		// Global rotation control
+		glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X), 1, 0, 0);
+		glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
+		glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
 
-	// Global rotation control
-	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_X), 1, 0, 0);
-	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Y), 0, 1, 0);
-	glRotatef(joint_ui_data->getDOF(Keyframe::ROOT_ROTATE_Z), 0, 0, 1);
-	
-	// Control wirefram, outlined rendering style
-	switch (renderStyle)
-	{
-		case SHINYMETAL:
-		case MATTE:
-		case SOLID:
-			glPolygonMode(GL_FRONT, GL_FILL);
-			break;
-		case OUTLINED:
-			glPolygonMode(GL_FRONT, GL_FILL);
-			renderStyle = SOLID;
-			drawPenguin();
-			renderStyle = OUTLINED;
-			glPolygonOffset(1.5f, 2.0f);
-		case WIREFRAME:
-		default:
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			break;
-	}
+		// Set rendering style
+		setRenderStyle();
 
-	drawPenguin();
+		drawPenguin();
 	
 	glPopMatrix();
-	//
-	// SAMPLE CODE **********
 
     // Execute any GL functions that are in the queue just to be safe
     glFlush();
@@ -952,14 +937,36 @@ void display(void)
     glutSwapBuffers();
 }
 
-// Draw the light source
+void setRenderStyle()
+{
+	// Control wirefram, outlined rendering style
+	switch (renderStyle)
+	{
+		case SHINYMETAL:
+		case MATTE:
+		case SOLID:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			break;
+		case OUTLINED:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			renderStyle = SOLID;
+			drawPenguin();
+			renderStyle = OUTLINED;
+		case WIREFRAME:
+		default:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			break;
+	}
+}
+
+// Draw the light source, circle parallel to xy plane
 void drawLight()
 {
 	glPushMatrix();
 		glLoadIdentity();
 		GLfloat light_position[] = {
-			50.0,
-			20.0,
+			50.0 * cosf(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE)),
+			50.0 * sinf(joint_ui_data->getDOF(Keyframe::LIGHT_ANGLE)),
 			20.0,
 			35.0
 		};
@@ -1140,7 +1147,7 @@ bool renderColor()
 	return (renderStyle != OUTLINED) && (renderStyle != WIREFRAME);
 }
 
-void setMaterial() {
+void setPolygonMaterial() {
 	if (renderStyle == SHINYMETAL) {
 		GLfloat ambient[] = {0.25, 0.25, 0.25};
 		GLfloat diffuse[] = {0.4, 0.4, 0.4};
@@ -1212,11 +1219,12 @@ void motion(int x, int y)
 // README: Helper code for drawing a cube
 void drawCube()
 {
-	setMaterial();
+	setPolygonMaterial();
+
 	glBegin(GL_QUADS);
 		glColor3f(0.0, 0.0, 0.0); // Black wireframe
 		// draw front face
-		if (renderColor()) glColor3f(0.9, 0.9, 0.9);
+		if (renderColor()) glColor3f(0.72, 0.72, 0.72);
 		glNormal3f(0, 0, 1.0);
 		glVertex3f(-1.0, -1.0, 1.0);
 		glNormal3f(0, 0, 1.0);
@@ -1238,7 +1246,7 @@ void drawCube()
 		glVertex3f( 1.0,  1.0, -1.0);
 
 		// draw left face
-		if (renderColor()) glColor3f(0.54, 0.54, 0.54);
+		if (renderColor()) glColor3f(0.36, 0.36, 0.36);
 		glNormal3f(-1.0, 0, 0);
 		glVertex3f(-1.0, -1.0, -1.0);
 		glNormal3f(-1.0, 0, 0);
